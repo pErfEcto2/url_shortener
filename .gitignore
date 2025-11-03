@@ -1,15 +1,13 @@
-# Binaries
 bin/
 *.exe
 *.out
 *.log
 
-# Build artifacts
 build/
 
-# IDE files
 .vscode/
 .idea/
 
-# OS files
 .DS_Store
+
+.env

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <link rel="stylesheet" href="static/css/tacit-css.min.css"/>
+</head>
+<body>
+    <h1>Welcome to the URL Shortener</h1>
+    
+    <div>
+        <a href="/signup" class="button-class" style="background-color: navy; color: white; padding: 7px 10px;">Sign Up</a>
+        <a href="/login" class="button-class" style="background-color: navy; color: white; padding: 7px 10px;">Login</a>
+    </div>
+
+    <div>
+        <h3>Enter URL to Shorten:</h3>
+        <input type="text" id="urlToShorten" placeholder="Enter URL here">
+        <button hx-post="/shorten" hx-vals="{'url': document.getElementById('urlToShorten').value}" hx-target="#content">Shorten</button>
+    </div>
+</body>
+</html>
+
