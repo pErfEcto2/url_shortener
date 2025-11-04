@@ -18,7 +18,7 @@ func SignupHandlerPost(c *gin.Context) {
 		return
 	}
 
-	if db.HasUser(u) {
+	if db.HasUserByUsername(u.Username) {
 		c.HTML(http.StatusBadRequest, "signup.html", map[string]string{"Error": "user already exists"})
 		return
 	}
@@ -30,5 +30,5 @@ func SignupHandlerPost(c *gin.Context) {
 
 	db.AddUser(u)
 
-	c.HTML(http.StatusOK, "index.html", nil)
+	c.Redirect(http.StatusMovedPermanently, "/login")
 }

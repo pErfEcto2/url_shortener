@@ -23,12 +23,11 @@ func LoginHandlerPost(c *gin.Context) {
 		return
 	}
 
-	if !db.HasUser(u) {
+	dbUser := db.GetUserByUsername(u.Username)
+	if dbUser.Username == "" || dbUser.Password == "" {
 		c.HTML(http.StatusBadRequest, "login.html", map[string]string{"Error": "user does not exist"})
 		return
 	}
-
-	dbUser := db.GetUser(u)
 
 	if !dbUser.CompareHashedPasswords(u.Password) {
 		c.HTML(http.StatusBadRequest, "login.html", map[string]string{"Error": "invalid username or password"})
@@ -37,7 +36,7 @@ func LoginHandlerPost(c *gin.Context) {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"sub": dbUser.Username,
-		"exp": time.Now().Add(time.Minute * 10).Unix(),
+		"exp": time.Now().Add(time.Hour * 24).Unix(),
 	})
 
 	tokenString, err := token.SignedString([]byte(os.Getenv("SECRET")))
@@ -48,5 +47,5 @@ func LoginHandlerPost(c *gin.Context) {
 	c.SetSameSite(http.SameSiteLaxMode)
 	c.SetCookie("Authorization", tokenString, 3600*24*30, "", "", false, true)
 
-	c.HTML(http.StatusOK, "index.html", nil)
+	c.Redirect(http.StatusFound, "/user")
 }

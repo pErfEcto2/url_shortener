@@ -3,24 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
-    <link rel="stylesheet" href="static/css/tacit-css.min.css"/>
+    <title>URL Shortener - Dashboard</title>
+    <link rel="stylesheet" href="/static/css/tacit-css.min.css">
     <script src="/static/js/htmx.min.js"></script>
 </head>
 <body>
-    <section>
-        <h1>Welcome to the URL Shortener</h1>
-        
-        <div>
-            <a href="/signup" class="button-class" style="background-color: navy; color: white; padding: 7px 10px;">Sign Up</a>
-            <a href="/login" class="button-class" style="background-color: navy; color: white; padding: 7px 10px;">Login</a>
-        </div>
-    </section>
+    <header>
+        <nav>
+            <button onclick="logout()" style="float: right;">Log Out</button>
+        </nav>
+    </header>
 
+    <main style="max-width: 800px; margin: 2rem auto; padding: 0 1rem;">
         <section>
             <h2>Shorten a URL</h2>
             <form hx-post="/shorten" hx-target="#shortened-url-result" hx-swap="innerHTML">
                 <div>
+                    <label for="original-url">Enter URL to shorten:</label>
                     <input 
                         type="url" 
                         id="original-url" 
@@ -33,10 +32,19 @@
                 <button type="submit">Shorten URL</button>
             </form>
 
-            <div id="shortened-url-result" style="margin-top: 1rem;">
-                <!-- shortened-url-result -->
-            </div>
+            <div id="shortened-url-result" style="margin-top: 1rem;"></div>
         </section>
+
+        <section style="margin-top: 2rem;">
+            <!-- <h2>Your Shortened URLs</h2> -->
+            <!-- user's shortened urls -->
+        </section>
+    </main>
+    <script>
+        function logout() {
+            localStorage.removeItem('auth_token');
+            window.location.href = '/';
+        }
+    </script>
 </body>
 </html>
-

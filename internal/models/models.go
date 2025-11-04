@@ -3,8 +3,9 @@ package models
 import "golang.org/x/crypto/bcrypt"
 
 type User struct {
-	Username string `form:"username" json:"username"`
-	Password string `form:"password" json:"password"`
+	Username string            `form:"username" json:"username"`
+	Password string            `form:"password" json:"password"`
+	Urls     map[string]string // map of shortened urls and originals
 }
 
 func (u *User) HashPassword() error {

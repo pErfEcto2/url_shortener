@@ -5,6 +5,6 @@ import (
 	"net/http"
 )
 
-func RootHandler(c *gin.Context) {
+func RootHandlerGet(c *gin.Context) {
 	c.HTML(http.StatusOK, "index.html", nil)
 }

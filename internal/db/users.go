@@ -2,10 +2,16 @@ package db
 
 import (
 	"errors"
+	"maps"
+	"slices"
+
 	"github.com/pErfEcto2/url_shortener/internal/models"
+	"github.com/pErfEcto2/url_shortener/internal/shortener"
 )
 
-var users []models.User
+var users []models.User = []models.User{
+	{Username: "u", Password: "$2a$10$BGUqqy078P.YvRzljPjCBuCQVMz.stJmD0ywk8SRthpf1.2Egj0E2"},
+}
 
 func AddUser(user models.User) error {
 	for _, u := range users {
@@ -27,19 +33,61 @@ func GetUsers() []models.User {
 	return users
 }
 
-func GetUser(user models.User) models.User {
+func AddUrlToUser(url string, user models.User) bool {
+	if !HasUserByUsername(user.Username) {
+		return false
+	}
+
+	for i, u := range users {
+		if u.Username != user.Username {
+			continue
+		}
+		if _, ok := u.Urls[url]; ok {
+			return false
+		}
+
+		shortenedUrl := shortener.ShortenUrl(url)
+		for {
+			if slices.Contains(slices.Collect(maps.Values(u.Urls)), shortenedUrl) {
+				shortenedUrl = shortener.ShortenUrl(url)
+				continue
+			}
+			break
+		}
+
+		if users[i].Urls == nil {
+			users[i].Urls = make(map[string]string)
+		}
+
+		users[i].Urls[url] = shortenedUrl
+
+		break
+	}
+
+	return true
+}
+
+func GetUrlsByUsername(username string) (map[string]string, error) {
 	for _, u := range users {
-		if u.Username == user.Username {
+		if u.Username == username {
+			return u.Urls, nil
+		}
+	}
+	return nil, errors.New("no such user")
+}
+
+func GetUserByUsername(username string) models.User {
+	for _, u := range users {
+		if u.Username == username {
 			return u
 		}
 	}
 	return models.User{}
-
 }
 
-func HasUser(user models.User) bool {
+func HasUserByUsername(username string) bool {
 	for _, u := range users {
-		if u.Username == user.Username {
+		if u.Username == username {
 			return true
 		}
 	}
