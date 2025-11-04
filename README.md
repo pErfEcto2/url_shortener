@@ -71,5 +71,12 @@ Visit http://localhost:8080
 ## Usage
 
 - Public: Shorten URLs without account on home page
-
 - Registered Users: Sign up, log in, and manage shortened URLs in dashboard
+
+## TODO
+
+- signup and login input validation and sanitization
+- signup and login rate limits
+- url validation before shortening
+- validate signup password complexity
+- add validation that shortened URLs are unique across all users
