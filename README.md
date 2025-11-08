@@ -13,7 +13,7 @@ A lightweight URL shortener web application built with Go, Gin, and HTMX with JW
 ## Tech Stack
 
 - Backend: Go, Gin web framework
-- Frontend: HTML, HTMX
+- Frontend: HTML, CSS, HTMX
 - Authentication: JWT
 - Styling: Tacit CSS
 - Storage: In-memory (extensible to databases)
@@ -22,6 +22,7 @@ A lightweight URL shortener web application built with Go, Gin, and HTMX with JW
 
 ```
 url_shortener/
+├── Dockerfile                  # A Dockerfile to build and run the app
 ├── cmd/main.go                 # Application entry point
 ├── internal/
 │   ├── auth/                   # JWT authentication
@@ -33,6 +34,7 @@ url_shortener/
     ├── css/                    # Stylesheets
     ├── js/                     # JavaScript
     └── *.html                  # HTML templates
+
 ```
 
 ##  API Endpoints
@@ -54,16 +56,26 @@ PORT=8080
 SECRET=your-jwt-secret-key
 ```
 
+## Run manually
 Install dependencies:
-
 ```
 go mod tidy
 ```
 
 Run the application:
-
 ```
 go run ./cmd
+```
+
+## Run in a docker container
+Build the app and an image:
+```
+docker build -t url_shortener .
+```
+
+Run in a container:
+```
+docker run -p 8080:8080 --env-file .env url_shortener
 ```
 
 Visit http://localhost:8080
@@ -76,7 +88,6 @@ Visit http://localhost:8080
 ## TODO
 
 - signup and login input validation and sanitization
-- signup and login rate limits
 - url validation before shortening
-- validate signup password complexity
 - add validation that shortened URLs are unique across all users
+- add url shortening functionality
