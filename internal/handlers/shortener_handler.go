@@ -1,20 +1,36 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/pErfEcto2/url_shortener/internal/auth"
 	"github.com/pErfEcto2/url_shortener/internal/db"
+	"github.com/pErfEcto2/url_shortener/internal/models"
+	"github.com/sym01/htmlsanitizer"
 )
 
 func ShortenerHandlerPost(c *gin.Context) {
 	originUrl := c.Request.Header.Get("Referer")
 
 	if !strings.Contains(originUrl, "user") {
-		// from home page
+		url := c.PostForm("original_url")
+		sanitizedUrl, ok := htmlsanitizer.DefaultURLSanitizer(url)
+		if !ok {
+			return
+		}
+
+		shortenedUrl, ok := db.GetShortenedUrlByUrl(sanitizedUrl)
+		if !ok {
+			shortenedUrl, ok = db.AddUrlToUser(sanitizedUrl, models.User{Username: "system"})
+			if !ok {
+				c.Redirect(http.StatusMovedPermanently, "/")
+				return
+			}
+		}
+
+		c.HTML(http.StatusOK, "index_answer.html", gin.H{"shortenedUrl": shortenedUrl})
 		return
 	}
 
@@ -32,9 +48,11 @@ func ShortenerHandlerPost(c *gin.Context) {
 	}
 
 	url := c.PostForm("original_url")
-	if ok := db.AddUrlToUser(url, user); !ok {
-		return
+	sanitizedUrl, ok := htmlsanitizer.DefaultURLSanitizer(url)
+	if !ok {
+		c.Redirect(http.StatusMovedPermanently, "/user")
 	}
+	db.AddUrlToUser(sanitizedUrl, user)
 
-	fmt.Println(user)
+	c.Redirect(http.StatusMovedPermanently, "/user")
 }

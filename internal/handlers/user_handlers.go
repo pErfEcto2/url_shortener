@@ -1,20 +1,28 @@
 package handlers
 
 import (
-	// "fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	// "github.com/pErfEcto2/url_shortener/internal/db"
-	// "github.com/pErfEcto2/url_shortener/internal/models"
+	"github.com/pErfEcto2/url_shortener/internal/models"
 )
 
+func map2slice(m map[string]string) [][]string {
+	var res [][]string
+
+	for k, v := range m {
+		res = append(res, []string{k, v})
+	}
+	return res
+}
+
 func UserHandelerGet(c *gin.Context) {
-	_, ok := c.Get("user")
+	user, ok := c.Get("user")
 	if !ok {
 		c.Redirect(http.StatusMovedPermanently, "/login")
 		return
 	}
 
-	c.HTML(http.StatusOK, "user_page.html", nil)
+	urlsPairs := map2slice(user.(models.User).Urls)
+	c.HTML(http.StatusOK, "user_page.html", gin.H{"urls": urlsPairs})
 }

@@ -87,7 +87,4 @@ Visit http://localhost:8080
 
 ## TODO
 
-- signup and login input validation and sanitization
-- url validation before shortening
-- add validation that shortened URLs are unique across all users
 - add url shortening functionality

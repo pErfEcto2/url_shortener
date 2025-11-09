@@ -17,7 +17,7 @@
     <main style="max-width: 800px; margin: 2rem auto; padding: 0 1rem;">
         <section>
             <h2>Shorten a URL</h2>
-            <form hx-post="/shorten" hx-target="#shortened-url-result" hx-swap="innerHTML">
+            <form action="/shorten" method="POST">
                 <div>
                     <label for="original-url">Enter URL to shorten:</label>
                     <input 
@@ -31,13 +31,27 @@
                 </div>
                 <button type="submit">Shorten URL</button>
             </form>
-
-            <div id="shortened-url-result" style="margin-top: 1rem;"></div>
         </section>
 
         <section style="margin-top: 2rem;">
-            <!-- <h2>Your Shortened URLs</h2> -->
-            <!-- user's shortened urls -->
+            {{ if .urls }}
+            <h2>Your shortened URLs</h2>
+            <table style="border: 2px solid black; border-collapse: collapse;">
+                <tr>
+                    <th style="border: 1px solid black;">original</th>
+                    <th>shortened</th>
+                </tr>
+                {{ range .urls }}
+                    <tr>
+                        {{ range . }}
+                            <td style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border: 1px solid black;">{{ . }}</th>
+                        {{ end }}
+                    </tr>
+                {{ end }}
+            </table>
+            {{ else }}
+            <h2>No shortened URLs yet</h2>
+            {{ end }}
         </section>
     </main>
     <script>

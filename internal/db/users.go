@@ -10,7 +10,8 @@ import (
 )
 
 var users []models.User = []models.User{
-	{Username: "u", Password: "$2a$10$BGUqqy078P.YvRzljPjCBuCQVMz.stJmD0ywk8SRthpf1.2Egj0E2"},
+	{Username: "u", Password: "$2a$10$BGUqqy078P.YvRzljPjCBuCQVMz.stJmD0ywk8SRthpf1.2Egj0E2"}, // for testing
+	{Username: "system"}, // to store shortened urls from the index page
 }
 
 func AddUser(user models.User) error {
@@ -33,22 +34,50 @@ func GetUsers() []models.User {
 	return users
 }
 
-func AddUrlToUser(url string, user models.User) bool {
+func isUnique(url string) bool {
+	for _, u := range users {
+		if slices.Contains(slices.Collect(maps.Values(u.Urls)), url) {
+			return false
+		}
+	}
+	return true
+}
+
+func HasUrl(url string) bool {
+	for _, u := range users {
+		if slices.Contains(slices.Collect(maps.Keys(u.Urls)), url) {
+			return true
+		}
+	}
+	return false
+}
+
+func GetShortenedUrlByUrl(url string) (string, bool) {
+	for _, u := range users {
+		if v, ok := u.Urls[url]; ok {
+			return v, true
+		}
+	}
+	return "", false
+}
+
+func AddUrlToUser(url string, user models.User) (string, bool) {
 	if !HasUserByUsername(user.Username) {
-		return false
+		return "", false
 	}
 
+	var shortenedUrl string
 	for i, u := range users {
 		if u.Username != user.Username {
 			continue
 		}
 		if _, ok := u.Urls[url]; ok {
-			return false
+			return "", false
 		}
 
-		shortenedUrl := shortener.ShortenUrl(url)
+		shortenedUrl = shortener.ShortenUrl(url)
 		for {
-			if slices.Contains(slices.Collect(maps.Values(u.Urls)), shortenedUrl) {
+			if !isUnique(shortenedUrl) {
 				shortenedUrl = shortener.ShortenUrl(url)
 				continue
 			}
@@ -64,7 +93,7 @@ func AddUrlToUser(url string, user models.User) bool {
 		break
 	}
 
-	return true
+	return shortenedUrl, true
 }
 
 func GetUrlsByUsername(username string) (map[string]string, error) {
