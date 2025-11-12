@@ -35,5 +35,7 @@ func main() {
 
 	router.POST("/shorten", handlers.ShortenerHandlerPost)
 
+	router.GET("/:uri", handlers.RedirectHandlerGet)
+
 	router.Run(host + ":" + port)
 }

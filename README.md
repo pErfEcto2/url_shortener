@@ -87,4 +87,4 @@ Visit http://localhost:8080
 
 ## TODO
 
-- add url shortening functionality
+- nothing, it's perfect.

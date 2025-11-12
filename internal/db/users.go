@@ -10,8 +10,18 @@ import (
 )
 
 var users []models.User = []models.User{
-	{Username: "u", Password: "$2a$10$BGUqqy078P.YvRzljPjCBuCQVMz.stJmD0ywk8SRthpf1.2Egj0E2"}, // for testing
 	{Username: "system"}, // to store shortened urls from the index page
+}
+
+func GetOriginalURLByShortened(shortenedURL string) (string, error) {
+	for _, u := range users {
+		for k, v := range u.Urls {
+			if v == shortenedURL {
+				return k, nil
+			}
+		}
+	}
+	return "", errors.New("no such shortened url")
 }
 
 func AddUser(user models.User) error {
