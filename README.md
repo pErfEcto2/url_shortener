@@ -87,4 +87,4 @@ Visit http://localhost:8080
 
 ## TODO
 
-- nothing, it's perfect.
+- with 50/50 chance when redirecting from a shortened url it should redirect to a web site with pics of cute minipigs
