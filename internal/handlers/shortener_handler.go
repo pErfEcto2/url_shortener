@@ -51,6 +51,7 @@ func ShortenerHandlerPost(c *gin.Context) {
 	sanitizedUrl, ok := htmlsanitizer.DefaultURLSanitizer(url)
 	if !ok {
 		c.Redirect(http.StatusMovedPermanently, "/user")
+		return
 	}
 	db.AddUrlToUser(sanitizedUrl, user)
 

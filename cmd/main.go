@@ -10,12 +10,12 @@ import (
 )
 
 func main() {
-	// gin.SetMode(gin.ReleaseMode)
 
 	_ = godotenv.Load()
 
 	host := os.Getenv("HOST")
 	port := os.Getenv("PORT")
+	gin.SetMode(os.Getenv("MODE"))
 
 	router := gin.Default()
 
@@ -34,6 +34,8 @@ func main() {
 	router.GET("/user", auth.Authorize, handlers.UserHandelerGet)
 
 	router.POST("/shorten", handlers.ShortenerHandlerPost)
+
+	router.POST("/logout", handlers.LogoutHandlerPost)
 
 	router.GET("/:uri", handlers.RedirectHandlerGet)
 

@@ -45,11 +45,16 @@ func IsValidTokenString(tokenString string) (models.User, bool) {
 		return models.User{}, false
 	}
 
-	if float64(time.Now().Unix()) > claims["exp"].(float64) {
+	if exp, ok := claims["exp"].(float64); !ok || float64(time.Now().Unix()) > exp {
 		return models.User{}, false
 	}
 
-	dbUser := db.GetUserByUsername(claims["sub"].(string))
+	sub, ok := claims["sub"].(string)
+	if !ok {
+		return models.User{}, false
+	}
+
+	dbUser := db.GetUserByUsername(sub)
 	if dbUser.Username == "" || dbUser.Password == "" {
 		return models.User{}, false
 	}
