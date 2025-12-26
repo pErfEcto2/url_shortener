@@ -90,6 +90,4 @@ Visit http://localhost:8080
 ## TODO
 
 - with 50/50 chance when redirecting from a shortened url it should redirect to a web site with pics of cute minipigs
-- DB interface (with mutex)
 - sqlite realization of the DB interface
-- Users slice realization of the DB interface
