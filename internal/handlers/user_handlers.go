@@ -17,14 +17,16 @@ func map2slice(m map[string]string) [][]string {
 	return res
 }
 
-func UserHandelerGet(c *gin.Context) {
-	user, ok := c.Get("user")
-	if !ok {
-		c.Redirect(http.StatusMovedPermanently, "/login")
-		return
-	}
+func NewUserHandlerGet() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		user, ok := c.Get("user")
+		if !ok {
+			c.Redirect(http.StatusMovedPermanently, "/login")
+			return
+		}
 
-	urlsPairs := map2slice(user.(models.User).Urls)
-	slices.Reverse(urlsPairs)
-	c.HTML(http.StatusOK, "user_page.html", gin.H{"urls": urlsPairs})
+		urlsPairs := map2slice(user.(models.User).Urls)
+		slices.Reverse(urlsPairs)
+		c.HTML(http.StatusOK, "user_page.html", gin.H{"urls": urlsPairs})
+	}
 }

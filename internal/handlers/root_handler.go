@@ -1,10 +1,14 @@
 package handlers
 
 import (
-	"github.com/gin-gonic/gin"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
-func RootHandlerGet(c *gin.Context) {
-	c.HTML(http.StatusOK, "index.html", nil)
+func NewRootHandlerGet() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.HTML(http.StatusOK, "index.html", nil)
+
+	}
 }

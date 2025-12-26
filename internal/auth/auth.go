@@ -8,7 +8,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
-	"github.com/pErfEcto2/url_shortener/internal/db"
+	"github.com/pErfEcto2/url_shortener/internal/db/memory"
 	"github.com/pErfEcto2/url_shortener/internal/models"
 )
 
@@ -54,7 +54,9 @@ func IsValidTokenString(tokenString string) (models.User, bool) {
 		return models.User{}, false
 	}
 
-	dbUser := db.GetUserByUsername(sub)
+	db := memory.NewMemoryDB()
+
+	dbUser := db.UserByUsername(sub)
 	if dbUser.Username == "" || dbUser.Password == "" {
 		return models.User{}, false
 	}

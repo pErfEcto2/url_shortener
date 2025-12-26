@@ -6,8 +6,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func LogoutHandlerPost(c *gin.Context) {
-	c.SetCookie("Authorization", "", -1, "", "", false, true)
+func NewLogoutHandlerPost() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.SetCookie("Authorization", "", -1, "", "", false, true)
 
-	c.Redirect(http.StatusFound, "/")
+		c.Redirect(http.StatusFound, "/")
+
+	}
 }

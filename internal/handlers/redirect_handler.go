@@ -5,18 +5,25 @@ import (
 	"os"
 
 	"github.com/gin-gonic/gin"
-	"github.com/pErfEcto2/url_shortener/internal/db"
 )
 
-func RedirectHandlerGet(c *gin.Context) {
-	uri := c.Param("uri")
+type original_url_getter interface {
+	OriginalURLByShortened(shortenedURL string) (string, error)
+}
 
-	shortenedURL := "http://" + os.Getenv("HOST") + ":" + os.Getenv("PORT") + "/" + uri
-	originalURL, err := db.GetOriginalURLByShortened(shortenedURL)
-	if err != nil {
-		c.Redirect(http.StatusMovedPermanently, "/")
-		return
+func NewRedirectHandlerGet(db original_url_getter) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		uri := c.Param("uri")
+
+		shortenedURL := "http://" + os.Getenv("HOST") + ":" + os.Getenv("PORT") + "/" + uri
+
+		originalURL, err := db.OriginalURLByShortened(shortenedURL)
+		if err != nil {
+			c.Redirect(http.StatusMovedPermanently, "/")
+			return
+		}
+
+		c.Redirect(http.StatusMovedPermanently, originalURL)
+
 	}
-
-	c.Redirect(http.StatusMovedPermanently, originalURL)
 }

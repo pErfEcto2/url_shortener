@@ -6,54 +6,65 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/pErfEcto2/url_shortener/internal/auth"
-	"github.com/pErfEcto2/url_shortener/internal/db"
+	"github.com/pErfEcto2/url_shortener/internal/db/memory"
 	"github.com/pErfEcto2/url_shortener/internal/models"
 	"github.com/sym01/htmlsanitizer"
 )
 
-func ShortenerHandlerPost(c *gin.Context) {
-	originUrl := c.Request.Header.Get("Referer")
+type shorten_and_add_url interface {
+	ShortenedUrlByUrl(url string) (string, bool)
+	AddUrlToUser(url string, user models.User) (string, bool)
+}
 
-	if !strings.Contains(originUrl, "user") {
-		url := c.PostForm("original_url")
-		sanitizedUrl, ok := htmlsanitizer.DefaultURLSanitizer(url)
-		if !ok {
+func NewShortenerHandlerPost(db shorten_and_add_url) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		originUrl := c.Request.Header.Get("Referer")
+
+		if !strings.Contains(originUrl, "user") {
+			url := c.PostForm("original_url")
+			sanitizedUrl, ok := htmlsanitizer.DefaultURLSanitizer(url)
+			if !ok {
+				return
+			}
+
+			shortenedUrl, ok := db.ShortenedUrlByUrl(sanitizedUrl)
+			if !ok {
+				shortenedUrl, ok = db.AddUrlToUser(sanitizedUrl, models.User{Username: "system"})
+				if !ok {
+					c.Redirect(http.StatusMovedPermanently, "/")
+					return
+				}
+			}
+
+			c.HTML(http.StatusOK, "index_answer.html", gin.H{"shortenedUrl": shortenedUrl})
 			return
 		}
 
-		shortenedUrl, ok := db.GetShortenedUrlByUrl(sanitizedUrl)
-		if !ok {
-			shortenedUrl, ok = db.AddUrlToUser(sanitizedUrl, models.User{Username: "system"})
-			if !ok {
-				c.Redirect(http.StatusMovedPermanently, "/")
-				return
-			}
+		// from user page
+		tokenString, err := c.Cookie("Authorization")
+		if err != nil {
+			c.Redirect(http.StatusMovedPermanently, "/login")
+			return
 		}
 
-		c.HTML(http.StatusOK, "index_answer.html", gin.H{"shortenedUrl": shortenedUrl})
-		return
-	}
+		user, ok := auth.IsValidTokenString(tokenString)
+		if !ok {
+			c.Redirect(http.StatusMovedPermanently, "/login")
+			return
+		}
 
-	// from user page
-	tokenString, err := c.Cookie("Authorization")
-	if err != nil {
-		c.Redirect(http.StatusMovedPermanently, "/login")
-		return
-	}
+		url := c.PostForm("original_url")
+		sanitizedUrl, ok := htmlsanitizer.DefaultURLSanitizer(url)
+		if !ok {
+			c.Redirect(http.StatusMovedPermanently, "/user")
+			return
+		}
 
-	user, ok := auth.IsValidTokenString(tokenString)
-	if !ok {
-		c.Redirect(http.StatusMovedPermanently, "/login")
-		return
-	}
+		db := memory.NewMemoryDB()
 
-	url := c.PostForm("original_url")
-	sanitizedUrl, ok := htmlsanitizer.DefaultURLSanitizer(url)
-	if !ok {
+		db.AddUrlToUser(sanitizedUrl, user)
+
 		c.Redirect(http.StatusMovedPermanently, "/user")
-		return
-	}
-	db.AddUrlToUser(sanitizedUrl, user)
 
-	c.Redirect(http.StatusMovedPermanently, "/user")
+	}
 }

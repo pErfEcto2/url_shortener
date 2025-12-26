@@ -1,4 +1,4 @@
-package db
+package memory
 
 import (
 	"errors"
@@ -13,7 +13,13 @@ var users []models.User = []models.User{
 	{Username: "system"}, // to store shortened urls from the index page
 }
 
-func GetOriginalURLByShortened(shortenedURL string) (string, error) {
+type MemoryDB struct{}
+
+func NewMemoryDB() *MemoryDB {
+	return &MemoryDB{}
+}
+
+func (m *MemoryDB) OriginalURLByShortened(shortenedURL string) (string, error) {
 	for _, u := range users {
 		for k, v := range u.Urls {
 			if v == shortenedURL {
@@ -24,7 +30,7 @@ func GetOriginalURLByShortened(shortenedURL string) (string, error) {
 	return "", errors.New("no such shortened url")
 }
 
-func AddUser(user models.User) error {
+func (m *MemoryDB) AddUser(user models.User) error {
 	for _, u := range users {
 		if u.Username == user.Username {
 			return errors.New("user already exists")
@@ -40,11 +46,11 @@ func AddUser(user models.User) error {
 	return nil
 }
 
-func GetUsers() []models.User {
+func (m *MemoryDB) Users() []models.User {
 	return users
 }
 
-func isUnique(url string) bool {
+func (m *MemoryDB) isUnique(url string) bool {
 	for _, u := range users {
 		if slices.Contains(slices.Collect(maps.Values(u.Urls)), url) {
 			return false
@@ -53,7 +59,7 @@ func isUnique(url string) bool {
 	return true
 }
 
-func HasUrl(url string) bool {
+func (m *MemoryDB) HasUrl(url string) bool {
 	for _, u := range users {
 		if slices.Contains(slices.Collect(maps.Keys(u.Urls)), url) {
 			return true
@@ -62,7 +68,7 @@ func HasUrl(url string) bool {
 	return false
 }
 
-func GetShortenedUrlByUrl(url string) (string, bool) {
+func (m *MemoryDB) ShortenedUrlByUrl(url string) (string, bool) {
 	for _, u := range users {
 		if v, ok := u.Urls[url]; ok {
 			return v, true
@@ -71,8 +77,8 @@ func GetShortenedUrlByUrl(url string) (string, bool) {
 	return "", false
 }
 
-func AddUrlToUser(url string, user models.User) (string, bool) {
-	if !HasUserByUsername(user.Username) {
+func (m *MemoryDB) AddUrlToUser(url string, user models.User) (string, bool) {
+	if !m.HasUserByUsername(user.Username) {
 		return "", false
 	}
 
@@ -87,7 +93,7 @@ func AddUrlToUser(url string, user models.User) (string, bool) {
 
 		shortenedUrl = shortener.ShortenUrl(url)
 		for {
-			if !isUnique(shortenedUrl) {
+			if !m.isUnique(shortenedUrl) {
 				shortenedUrl = shortener.ShortenUrl(url)
 				continue
 			}
@@ -106,7 +112,7 @@ func AddUrlToUser(url string, user models.User) (string, bool) {
 	return shortenedUrl, true
 }
 
-func GetUrlsByUsername(username string) (map[string]string, error) {
+func (m *MemoryDB) UrlsByUsername(username string) (map[string]string, error) {
 	for _, u := range users {
 		if u.Username == username {
 			return u.Urls, nil
@@ -115,7 +121,7 @@ func GetUrlsByUsername(username string) (map[string]string, error) {
 	return nil, errors.New("no such user")
 }
 
-func GetUserByUsername(username string) models.User {
+func (m *MemoryDB) UserByUsername(username string) models.User {
 	for _, u := range users {
 		if u.Username == username {
 			return u
@@ -124,7 +130,7 @@ func GetUserByUsername(username string) models.User {
 	return models.User{}
 }
 
-func HasUserByUsername(username string) bool {
+func (m *MemoryDB) HasUserByUsername(username string) bool {
 	for _, u := range users {
 		if u.Username == username {
 			return true
