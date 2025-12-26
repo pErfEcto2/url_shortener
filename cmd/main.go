@@ -7,7 +7,13 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/pErfEcto2/url_shortener/internal/auth"
 	"github.com/pErfEcto2/url_shortener/internal/db/memory"
-	"github.com/pErfEcto2/url_shortener/internal/handlers"
+	"github.com/pErfEcto2/url_shortener/internal/handlers/login"
+	"github.com/pErfEcto2/url_shortener/internal/handlers/logout"
+	"github.com/pErfEcto2/url_shortener/internal/handlers/redirect"
+	"github.com/pErfEcto2/url_shortener/internal/handlers/root"
+	"github.com/pErfEcto2/url_shortener/internal/handlers/shortener"
+	"github.com/pErfEcto2/url_shortener/internal/handlers/signup"
+	"github.com/pErfEcto2/url_shortener/internal/handlers/user_page"
 )
 
 func main() {
@@ -27,21 +33,21 @@ func main() {
 
 	router.LoadHTMLGlob("static/*.html")
 
-	router.GET("/", handlers.NewRootHandlerGet())
+	router.GET("/", root.NewRootHandlerGet())
 
-	router.GET("/signup", handlers.NewSignupHandlerGet())
-	router.POST("/signup", handlers.NewSignupHandlerPost(db))
+	router.GET("/signup", signup.NewSignupHandlerGet())
+	router.POST("/signup", signup.NewSignupHandlerPost(db))
 
-	router.GET("/login", handlers.NewLoginHandlerGet())
-	router.POST("/login", handlers.NewLoginHandlerPost(db))
+	router.GET("/login", login.NewLoginHandlerGet())
+	router.POST("/login", login.NewLoginHandlerPost(db))
 
-	router.GET("/user", auth.Authorize, handlers.NewUserHandlerGet())
+	router.GET("/user", auth.Authorize, user_page.NewUserHandlerGet())
 
-	router.POST("/shorten", handlers.NewShortenerHandlerPost(db))
+	router.POST("/shorten", shortener.NewShortenerHandlerPost(db))
 
-	router.POST("/logout", handlers.NewLogoutHandlerPost())
+	router.POST("/logout", logout.NewLogoutHandlerPost())
 
-	router.GET("/:uri", handlers.NewRedirectHandlerGet(db))
+	router.GET("/:uri", redirect.NewRedirectHandlerGet(db))
 
 	router.Run(host + ":" + port)
 }

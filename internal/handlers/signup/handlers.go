@@ -1,4 +1,4 @@
-package handlers
+package signup
 
 import (
 	"net/http"
